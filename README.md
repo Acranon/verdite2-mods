@@ -50,6 +50,11 @@ Using a key on a door, a crystal on a pedestal or a vial on a fountain normally 
 ### Item Info
 In any item list (the Items page, equipment, shops), press **`** to read the highlighted item's description. It's shown the way the fortuneteller shows it, using the game's own text from your disc. Any button closes it. The key can be changed in settings.
 
+### Spell Info
+The game never explains what its spells do. On the Magic and attack-magic pages, press **`** to show a panel for the highlighted spell: its element, its MP cost (read live from the game) and a short description, in the game's own font. The key and the panel's position can be changed in settings.
+
+The descriptions are our own, written from the spell pages of the [King's Field Wiki](https://kingsfield.fandom.com/wiki/Magic).
+
 ### Reveal *(work in progress)*
 Press **G** to make interactive objects glow, colour-coded by what they are:
 

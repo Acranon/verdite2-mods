@@ -1,0 +1,7 @@
+{
+  "id": "kf2.spellinfo",
+  "name": "Spell Info",
+  "version": "1.2",
+  "author": "Acranon",
+  "description": "On the magic pages, press ` to show what the highlighted spell does -- its element, MP cost and effect -- in the game's own font. The game has no spell descriptions; these are written from the King's Field Wiki."
+}
