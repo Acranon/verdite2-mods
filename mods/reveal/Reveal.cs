@@ -461,15 +461,18 @@ public sealed class RevealMod : IMod
         }
         near.Sort((a, b) => a.D.CompareTo(b.D));
 
-        // The player's condition timers (status screen page one) and the timer
-        // at 0x8019947E whose countdown swaps palettes at VRAM (576, 279..282)
-        // every four ticks -- a candidate for the screen blinking after a
-        // ghost's darkness.
+        // The player's condition timers (status screen page one), then the
+        // others stage 3 (func_8002A550) runs on: the LIGHT spell's ramp and
+        // duration at 0x8019947A/7C (a warm light blended in by func_8002CC70),
+        // and the PHANTOM ROD's countdown at 0x8019947E (set to 1200 by
+        // func_800474D0; see phantom sight). Wearing the DARK ARMOR (0x1F in
+        // the body slot, 0x801994D5) blends darkness in every tick.
         short T(uint a) => (short)m.ReadU16(a);
         Console.WriteLine($"[KF2] reveal: conditions poison {T(0x80199468)} curse {T(0x8019946A)} " +
                           $"dark {T(0x8019946E)} slow {T(0x80199472)} paralyze {T(0x80199474)}; " +
                           $"timers 6C {T(0x8019946C)} 70 {T(0x80199470)} 76 {T(0x80199476)} 78 {T(0x80199478)} " +
-                          $"7A {T(0x8019947A)} 7C {T(0x8019947C)} flash(7E) {T(0x8019947E)} 80 {T(0x80199480)}");
+                          $"light {T(0x8019947A)}/{T(0x8019947C)} phantom rod {T(0x8019947E)} 80 {T(0x80199480)}" +
+                          (m.ReadU8(0x801994D5) == 0x1F ? "; DARK ARMOR worn (darkens everything)" : ""));
         Console.WriteLine($"[KF2] reveal: {near.Count} object(s) within 6000 of ({px},{pz}), nearest first");
         for (int i = 0; i < near.Count && i < 12; i++) Console.WriteLine("[KF2]   " + near[i].Line);
         ToastNotifications.ShowText("Reveal", $"{near.Count} objects nearby -- see the console");
