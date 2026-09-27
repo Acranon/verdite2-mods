@@ -1,0 +1,7 @@
+{
+  "id": "kf2.quickuse",
+  "name": "Quick Use",
+  "version": "1.0",
+  "author": "Acranon",
+  "description": "A hotkey (R) that opens the game's own Items page directly, with the items you pin (F) at the top. Pick a key, crystal or vial and it is used on whatever is in front of you, exactly as from the normal menu."
+}

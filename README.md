@@ -41,6 +41,12 @@ When the equipment menu asks whether to equip something, shows every combat stat
 ### Key Hint
 When you try to open something locked, tells you which key it needs and whether you're carrying it. It also recognises sealed doors, and doors that need the DARK SLAYER.
 
+### Quick Use
+Using a key on a door, a crystal on a pedestal or a vial on a fountain normally takes a trip through the menu. Quick Use opens the game's own Items page directly and keeps the items you care about at the top.
+- **Open:** R. Pick an item and answer Yes, and it's used on whatever is in front of you, exactly as from the normal menu. Backing out closes the menu.
+- **Pin:** F, on the Items page, pins or unpins the highlighted item. Pinned items stay at the top.
+- **Settings:** both keys, whether the normal menu's Items page is sorted too (on by default), and the pinned list, which you can reorder or unpin.
+
 ### Reveal *(work in progress)*
 Press **G** to make interactive objects glow, colour-coded by what they are:
 
