@@ -1,7 +1,7 @@
 {
   "id": "kf2.jump",
   "name": "Jump",
-  "version": "1.3",
+  "version": "1.4",
   "author": "Acranon",
   "description": "Adds a jump (Space by default). It launches the game's own falling state upward, so the game's gravity, ceiling collision and landing do the rest."
 }

@@ -25,7 +25,7 @@ On the PS1 pad, one button both runs (when held) and uses or picks up (when pres
 ### Jump
 Adds a jump. It uses the game's own falling state, so gravity, ceiling collision, landing and **fall damage** all still apply. Jump off something high and you'll feel it.
 - **Jump:** Space.
-- **Settings:** jump strength (default 373) and rise speed (default 80%).
+- **Settings:** jump strength (default 373, up to 700) and rise speed (default 80%). **450 is the most that lands without fall damage.** Anything higher reaches spots you otherwise couldn't, but every jump on flat ground will cost HP when you land.
 
 ### Quick Save
 Save anywhere and load it back, using the game's own save and load code, so the area, music and everything else reload the way a normal load does. Quick saves are separate files (`quicksaveN.kfq` in the data folder) and never touch your memory-card saves.

@@ -83,12 +83,16 @@ public sealed class JumpMod : IMod
 
     const int GameGravity = 40;
 
+    // The slider's range. Above SafeStrength a jump on flat ground lands fast
+    // enough to take fall damage (found in play; the landing test is >= 480).
+    const int MinStrength = 80, MaxStrength = 700, SafeStrength = 450;
+
     public void OnLoad()
     {
         var view = RecompOne.Runtime.Runtime.View;
-        _keyIndex = IndexOf(Keys, view.GetString(KeyKey, "E"));
+        _keyIndex = IndexOf(Keys, view.GetString(KeyKey, "Space"));
         _padIndex = IndexOf(PadButtons, view.GetString(PadKey, "R3 (right stick click)"));
-        _strength = Math.Clamp((int)view.GetFloat(StrengthKey, 373f), 80, 470);
+        _strength = Math.Clamp((int)view.GetFloat(StrengthKey, 373f), MinStrength, MaxStrength);
         _risePercent = Math.Clamp((int)view.GetFloat(RiseKey, 80f), 40, 100);
     }
 
@@ -174,13 +178,16 @@ public sealed class JumpMod : IMod
         if (Combo("Jump pad button", ref _padIndex, PadButtons))
             Persist(PadKey, PadButtons[_padIndex].Name);
 
-        if (ImGui.SliderInt("Jump strength", ref _strength, 80, 470))
+        if (ImGui.SliderInt("Jump strength", ref _strength, MinStrength, MaxStrength))
         {
             RecompOne.Runtime.Runtime.View.SetFloat(StrengthKey, _strength);
             RecompOne.Runtime.Runtime.SaveView();
         }
         ImGui.TextDisabled("Rough height: " + (_strength * _strength / 80) + " units (eye height is 1600). "
-                         + "Landings at 480 or more cause fall damage.");
+                         + SafeStrength + " is the most that lands without fall damage.");
+        if (_strength > SafeStrength)
+            ImGui.TextColored(new System.Numerics.Vector4(1f, 0.6f, 0.2f, 1f),
+                "Above " + SafeStrength + ": every jump on flat ground costs HP when you land.");
 
         if (ImGui.SliderInt("Rise speed", ref _risePercent, 40, 100, "%d%%"))
         {
