@@ -9,6 +9,7 @@ using RecompOne.Runtime.Host.Window;
 using RecompOne.Runtime.Memory;
 using RecompOne.Runtime.Modding;
 using Silk.NET.Input;
+using KingsField2 = Recompiled.KingsField2_game;
 
 namespace Kf2.Mods.Reveal;
 
@@ -102,6 +103,7 @@ public sealed class RevealMod : IMod
         _toggleKey = IndexOf(view.GetString("kf2.reveal.toggle", "G"), 0);
         _probeKey = IndexOf(view.GetString("kf2.reveal.probe", "H"), 1);
         _pulse = view.GetBool("kf2.reveal.pulse", true);
+        _phantom = view.GetBool("kf2.reveal.phantom", true);
         _warnings = view.GetBool("kf2.reveal.warnings", true);
         _warnTiles = Math.Clamp(view.GetFloat("kf2.reveal.warntiles", 2.5f), 1f, 5f);
         _strength = view.GetFloat("kf2.reveal.strength", 0.7f);
@@ -138,12 +140,65 @@ public sealed class RevealMod : IMod
             RebuildPartners(m);
             if (_warnings) ProximityWarning(m);
         }
+        PhantomSight(c, m);
     }
 
-    // A trap or a hidden panel is not drawn while closed, so it cannot glow;
-    // while Reveal is on, one coming within range is announced -- once, until
-    // you have walked away from it. (Forcing their visibility byte on during
-    // the walk, below, draws them but inside the wall, where nothing shows.)
+    // ---- phantom sight: the Phantom Rod's own effect ----
+    //
+    // Using the PHANTOM ROD (item 0x54) in func_800474D0 only sets a timer --
+    // u16 0x8019947E = 1200 ticks, a minute -- and uses one up. Stage 3
+    // (func_8002A550) counts it down and every 8 ticks calls func_800364D8(1);
+    // on the last tick, func_800364D8(0). That routine walks all 396 objects and
+    // hands two kinds to func_800363E4(obj, show, tile):
+    //
+    //     kind 0x05 with +0x38 != 0xFE   a hidden compartment, not yet opened
+    //     kind 0x51 with +0x3B != 0xFF   a spear trap in a wall
+    //
+    // which, showing, sets the object's scale (+0x2C/+0x2E/+0x30) to 0x1000 and
+    // its map tile to 0xFE (open); hidden, the scale to 0 and the tile back to
+    // the definition's wall (def+0xC or +0x17). So those two are not drawn at all
+    // until opened -- they are scaled to nothing, which is why forcing their
+    // draw mask on showed nothing -- and the rod is how the game shows them.
+    // While the glow is on this does what the rod does, on the rod's schedule,
+    // without the rod, its timer or its HUD icon; turned off, it puts them back
+    // as the rod does when it runs out (unless a real rod is running).
+    const uint PhantomTimer = 0x8019947E;
+    static bool _phantom = true;
+    static bool _phantomActive;
+    static int _phantomTick;
+
+    static void PhantomSight(CpuContext c, IMemory m)
+    {
+        if (_on && _phantom)
+        {
+            if (!_phantomActive || ++_phantomTick >= 8)
+            {
+                _phantomTick = 0;
+                CallPhantom(c, m, 1);
+            }
+            _phantomActive = true;
+        }
+        else if (_phantomActive)
+        {
+            _phantomActive = false;
+            if (m.ReadU16(PhantomTimer) == 0) CallPhantom(c, m, 0);
+        }
+    }
+
+    static void CallPhantom(CpuContext c, IMemory m, uint show)
+    {
+        var snap = c.Snapshot();
+        try
+        {
+            c.A0 = show;
+            KingsField2.func_800364D8(c, m);
+        }
+        finally { c.Restore(snap); }
+    }
+
+    // A trap or a hidden panel is scaled to nothing while closed, so without
+    // phantom sight (above) it cannot glow; while Reveal is on, one coming
+    // within range is announced -- once, until you have walked away from it.
     // In tiles (2048 units each); 1.5 was found too close to react in play.
     static float _warnTiles = 2.5f;
     static long WarnRange => (long)(_warnTiles * 2048);
@@ -172,7 +227,7 @@ public sealed class RevealMod : IMod
             if (cat is not (Cat.Trap or Cat.Secret) || !_show[(int)cat]) continue;
             // Secret doors (kind 0x02) never warn, by request: their glow reads
             // plainly on its own, and the toast was taken for a hidden wall
-            // panel nearby. Only the panels (kind 0x05, definition 0x083), which
+            // panel nearby. Only the compartments (kind 0x05, any definition), which
             // are easy to walk past, warn as "something hidden".
             if (cat == Cat.Secret && m.ReadU8(DefBase + m.ReadU16(rec + 0x6) * DefStride) == 0x02)
                 continue;
@@ -233,13 +288,19 @@ public sealed class RevealMod : IMod
             // definition 0x083 -- next to the secret door's 0x082, and as
             // wall-like) whose item only appeared once it was opened. That
             // model is a secret, so it is lit as one.
-            0x05 or 0x08 or 0x16 when link < ObjCount => m.ReadU8(rec + 0x38) switch
+            // Kind 0x05 is always a compartment hidden in a wall -- the Phantom
+            // Rod's own test (func_800364D8) is only "+0x38 != 0xFE", with or
+            // without a linked item. Found in play: one with no link (0xFFFF)
+            // was lit as a lever by the rule below it.
+            0x05 => m.ReadU8(rec + 0x38) != 0xFE ? Cat.Secret
+                  : HasLoot(m, link) ? Cat.Chest : Cat.None,
+            0x08 or 0x16 when link < ObjCount => m.ReadU8(rec + 0x38) switch
             {
                 < 0xFE => Cat.LockedChest,
-                0xFF => def == 0x083 ? Cat.Secret : Cat.Chest,
+                0xFF => Cat.Chest,
                 _ => HasLoot(m, link) ? Cat.Chest : Cat.None,
             },
-            0x05 or 0x08 or 0x16 => Cat.Lever,
+            0x08 or 0x16 => Cat.Lever,
             // Confirmed in play: a wall switch is kind 0x53.
             0x53 => Cat.Lever,
             0x0D or 0x0E or 0x0F or 0x12 or 0x14 or 0x20 => Cat.Other,
@@ -281,41 +342,6 @@ public sealed class RevealMod : IMod
             if (dx * dx + dz * dz > 0x1800L * 0x1800L) continue;
             _partner[link] = cat;
         }
-    }
-
-    // ---- drawing traps that are hidden ----
-    //
-    // The object walk draws a record only when its first byte, a visibility
-    // mask, shares a bit with the global at 0x801B69BC; the use handler sets
-    // that byte on a chest's contents to make them appear. A closed spear panel
-    // is not drawn, so for the length of the walk (func_800331B4, which
-    // patches/ModelWalk.cs replaces -- hooks on its address still run around
-    // it) every trap's mask is switched on, and put back afterwards. Nothing
-    // but the renderer runs in between.
-    static readonly List<(uint Rec, byte Mask)> _forced = [];
-
-    [PreHook("game", Address = 0x800331B4)]
-    static bool BeforeWalk(CpuContext c, IMemory m)
-    {
-        _forced.Clear();
-        if (!_on || !_show[(int)Cat.Trap]) return true;
-        for (uint i = 0; i < ObjCount; i++)
-        {
-            uint rec = ObjBase + i * ObjStride;
-            if (m.ReadU16(rec + 0x6) >= DefCount) continue;
-            byte mask = m.ReadU8(rec);
-            if (mask == 0xFF || Classify(m, rec) != Cat.Trap) continue;
-            _forced.Add((rec, mask));
-            m.WriteU8(rec, 0xFF);
-        }
-        return true;
-    }
-
-    [PostHook("game", Address = 0x800331B4)]
-    static void AfterWalk(CpuContext c, IMemory m)
-    {
-        foreach (var (rec, mask) in _forced) m.WriteU8(rec, mask);
-        _forced.Clear();
     }
 
     // ---- the glow ----
@@ -471,6 +497,9 @@ public sealed class RevealMod : IMod
 
         if (ImGui.SliderFloat("Glow strength", ref _strength, 0.2f, 1f, "%.2f")) { view.SetFloat("kf2.reveal.strength", _strength); RecompOne.Runtime.Runtime.SaveView(); }
         if (ImGui.Checkbox("Pulse", ref _pulse)) { view.SetBool("kf2.reveal.pulse", _pulse); RecompOne.Runtime.Runtime.SaveView(); }
+        if (ImGui.Checkbox("Phantom sight", ref _phantom)) { view.SetBool("kf2.reveal.phantom", _phantom); RecompOne.Runtime.Runtime.SaveView(); }
+        ImGui.TextDisabled("While the glow is on, do what the Phantom Rod does: hidden compartments");
+        ImGui.TextDisabled("open up and spear traps show in the walls, so they glow too. No rod is used.");
         if (ImGui.Checkbox("Warn when a trap or hidden wall panel is near", ref _warnings)) { view.SetBool("kf2.reveal.warnings", _warnings); RecompOne.Runtime.Runtime.SaveView(); }
         if (ImGui.SliderFloat("Warning distance", ref _warnTiles, 1f, 5f, "%.1f tiles")) { view.SetFloat("kf2.reveal.warntiles", _warnTiles); RecompOne.Runtime.Runtime.SaveView(); }
     }
