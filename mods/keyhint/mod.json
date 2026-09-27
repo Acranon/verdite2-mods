@@ -1,0 +1,7 @@
+{
+  "id": "kf2.keyhint",
+  "name": "Key Hint",
+  "version": "1.2",
+  "author": "Acranon",
+  "description": "When you try to open something locked, names the key it needs and whether you are carrying it."
+}

@@ -1,0 +1,7 @@
+{
+  "id": "kf2.quicksave",
+  "name": "Quick Save",
+  "version": "2.1",
+  "author": "Acranon",
+  "description": "Save anywhere with a hotkey (F2) and load it back (F4), through the game's own save packer and loader -- the area, music and everything else reload the way a normal load does. Quick saves are files of their own and never touch the memory card slots."
+}

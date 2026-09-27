@@ -1,0 +1,7 @@
+{
+  "id": "kf2.gearcompare",
+  "name": "Gear Compare",
+  "version": "1.4",
+  "author": "Acranon",
+  "description": "When the equipment menu asks Yes/No to equip something, shows every combat stat that would change -- now and after -- in the game's own font, beside the prompt."
+}

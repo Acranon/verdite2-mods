@@ -1,0 +1,7 @@
+{
+  "id": "kf2.runkey",
+  "name": "Separate Run Key",
+  "version": "1.0",
+  "author": "Acranon",
+  "description": "Splits Cross in two. On the PS1 pad one button both runs (held) and uses/picks up (pressed). With this on, the Cross key only uses, and a separate Run key (Left Shift by default, or a pad button) only runs."
+}
