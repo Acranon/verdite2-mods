@@ -47,6 +47,9 @@ Using a key on a door, a crystal on a pedestal or a vial on a fountain normally 
 - **Pin:** F, on the Items page, pins or unpins the highlighted item. Pinned items stay at the top.
 - **Settings:** both keys, whether the normal menu's Items page is sorted too (on by default), and the pinned list, which you can reorder or unpin.
 
+### Item Info
+In any item list (the Items page, equipment, shops), press **`** to read the highlighted item's description. It's shown the way the fortuneteller shows it, using the game's own text from your disc. Any button closes it. The key can be changed in settings.
+
 ### Reveal *(work in progress)*
 Press **G** to make interactive objects glow, colour-coded by what they are:
 

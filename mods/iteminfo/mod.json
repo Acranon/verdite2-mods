@@ -1,0 +1,7 @@
+{
+  "id": "kf2.iteminfo",
+  "name": "Item Info",
+  "version": "1.0",
+  "author": "Acranon",
+  "description": "In any item list (items, equipment, shops), press ` to read the highlighted item's description, shown the way the fortuneteller shows it. The text is the game's own, read from your disc."
+}
