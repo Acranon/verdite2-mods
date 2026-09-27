@@ -170,12 +170,12 @@ public sealed class RevealMod : IMod
             if (def >= DefCount) { _warned.Remove(i); continue; }
             var cat = Classify(m, rec);
             if (cat is not (Cat.Trap or Cat.Secret) || !_show[(int)cat]) continue;
-            // A secret door already opened (state 0 -> 20 as it moved) is no
-            // secret. Doors only: a hidden wall panel reads state 1 while still
-            // closed (found in play), and Classify already stops calling it a
-            // secret once its +0x38 leaves 0xFF.
-            if (cat == Cat.Secret && m.ReadU8(DefBase + m.ReadU16(rec + 0x6) * DefStride) == 0x02
-                && m.ReadU16(rec + 0x8) != 0) continue;
+            // Secret doors (kind 0x02) never warn, by request: their glow reads
+            // plainly on its own, and the toast was taken for a hidden wall
+            // panel nearby. Only the panels (kind 0x05, definition 0x083), which
+            // are easy to walk past, warn as "something hidden".
+            if (cat == Cat.Secret && m.ReadU8(DefBase + m.ReadU16(rec + 0x6) * DefStride) == 0x02)
+                continue;
             long dx = (int)m.ReadU32(rec + 0x14) - px, dz = (int)m.ReadU32(rec + 0x1C) - pz;
             long d2 = dx * dx + dz * dz;
             // Height too: found in play, the same spear panel warned from the
@@ -471,7 +471,7 @@ public sealed class RevealMod : IMod
 
         if (ImGui.SliderFloat("Glow strength", ref _strength, 0.2f, 1f, "%.2f")) { view.SetFloat("kf2.reveal.strength", _strength); RecompOne.Runtime.Runtime.SaveView(); }
         if (ImGui.Checkbox("Pulse", ref _pulse)) { view.SetBool("kf2.reveal.pulse", _pulse); RecompOne.Runtime.Runtime.SaveView(); }
-        if (ImGui.Checkbox("Warn when a trap or something hidden is near", ref _warnings)) { view.SetBool("kf2.reveal.warnings", _warnings); RecompOne.Runtime.Runtime.SaveView(); }
+        if (ImGui.Checkbox("Warn when a trap or hidden wall panel is near", ref _warnings)) { view.SetBool("kf2.reveal.warnings", _warnings); RecompOne.Runtime.Runtime.SaveView(); }
         if (ImGui.SliderFloat("Warning distance", ref _warnTiles, 1f, 5f, "%.1f tiles")) { view.SetFloat("kf2.reveal.warntiles", _warnTiles); RecompOne.Runtime.Runtime.SaveView(); }
     }
 

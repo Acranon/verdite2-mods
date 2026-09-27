@@ -55,7 +55,7 @@ Press **G** to make interactive objects glow, colour-coded by what they are:
 | Orange | Traps |
 | White | Everything else |
 
-- **Warnings:** a message appears when a trap or something hidden is near. The warning distance can be set (default 2.5 tiles).
+- **Warnings:** a message appears when a trap or a hidden wall panel is near. Secret doors glow but do not warn, because their glow is easy to spot. The warning distance can be set (default 2.5 tiles).
 - **H** prints the objects around you to the console, which helps identify what something is.
 - **Settings:** which categories glow, glow strength, pulse, warnings and warning distance.
 - Secret doors are the hard case, and a few may not be classified correctly yet. Reports with screenshots are welcome.

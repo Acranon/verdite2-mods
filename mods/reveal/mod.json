@@ -1,7 +1,7 @@
 {
   "id": "kf2.reveal",
   "name": "Reveal",
-  "version": "2.9",
+  "version": "3.0",
   "author": "Acranon",
   "description": "Press G to make interactive objects glow through their own polygons: secret doors red, containers with loot gold, locked ones magenta, traps orange (with a warning when near), loose items green, doors blue, levers cyan. H prints the objects around you to the console, to identify what something is."
 }
