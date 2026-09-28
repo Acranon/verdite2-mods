@@ -75,6 +75,13 @@ Press **G** to make interactive objects glow, colour-coded by what they are:
 - **Settings:** which categories glow, glow strength, pulse, warnings and warning distance.
 - Secret doors are the hard case, and a few may not be classified correctly yet. Reports with screenshots are welcome.
 
+### Shortcuts
+Bind number keys to items, magic and equipment, then press the same key in game to use or equip them.
+- **Assign:** highlight an entry in Use Item, Use Magic or Equipment and press **1–9**. Reusing a key transfers its shortcut.
+- **Use:** press the same key on the same entry to cycle through **(1)** (confirm), **-1-** (use immediately), then remove it.
+- **Equipment:** first press assigns **-1-**, second removes it. Equips immediately with a brief fading message. Includes **Magic** and **Button**, without casting or consuming anything.
+- **Settings:** clear all shortcuts.
+
 ## License
 
 MIT. See [LICENSE](LICENSE).
